@@ -1,7 +1,7 @@
 import {db} from "./firebase.js";
 import {ref,get,onValue,push,set,update,remove} from "https://www.gstatic.com/firebasejs/10.12.5/firebase-database.js";
 const $=id=>document.getElementById(id);
-let mode="login",user=null,profile=null,games={},filter="all",gamesUnsub=null,controlMode="mobile",selectedGameId=null,theme={color:"#57e8ff",rgb:false};
+let mode="login",user=null,profile=null,games={},filter="all",gamesUnsub=null,keysUnsub=null,controlMode="mobile",selectedGameId=null,theme={color:"#57e8ff",rgb:false};
 const defaultKeys={add1:"a",remove1:"q",add2:"d",remove2:"e"};
 let keyConfig={...defaultKeys};
 const key=s=>s.trim().toLowerCase();
@@ -18,9 +18,14 @@ async function saveTheme(){if(!user)return;const msg=$("themeMsg");msg.textConte
 $("openTheme").onclick=openTheme;$("closeTheme").onclick=closeTheme;$("saveTheme").onclick=saveTheme;$("themeColor").oninput=e=>{theme={...theme,color:e.target.value,preset:null};applyTheme(theme)};$("rgbToggle").onchange=e=>{theme={...theme,rgb:e.target.checked};applyTheme(theme)};
 ["R","G","B"].forEach(channel=>$("rgb"+channel).oninput=()=>{theme={...theme,color:rgbToHex($("rgbR").value,$("rgbG").value,$("rgbB").value),preset:null};applyTheme(theme)});
 const themePresets={cyan:"#57e8ff",violet:"#a78bfa",lime:"#b7f34a",coral:"#ff7b87",gold:"#ffd166"};document.querySelectorAll("[data-theme-preset]").forEach(b=>b.onclick=()=>{theme={...theme,color:themePresets[b.dataset.themePreset],preset:b.dataset.themePreset};applyTheme(theme)});
-onValue(ref(db,"settings/keyboard"),snap=>{keyConfig={...defaultKeys,...(snap.val()||{})};updateKeyboardHelp()});
 function keyLabel(k){return k===" "?"Espaço":String(k||"").toUpperCase()}
 function updateKeyboardHelp(){const el=$("keyboardHelp");if(el)el.innerHTML=`Teclas: <b>${keyLabel(keyConfig.add1)}</b> + ponto jogador 1 · <b>${keyLabel(keyConfig.remove1)}</b> − ponto jogador 1 · <b>${keyLabel(keyConfig.add2)}</b> + ponto jogador 2 · <b>${keyLabel(keyConfig.remove2)}</b> − ponto jogador 2. Clique em uma partida para selecioná-la.`}
+const keyFields={add1:"keyAdd1",remove1:"keyRemove1",add2:"keyAdd2",remove2:"keyRemove2"};let capturingKey=null;
+function prettyKey(k){if(k===" ")return "Espaço";if(String(k).length===1)return String(k).toUpperCase();return k}
+function paintKeys(){Object.entries(keyFields).forEach(([name,id])=>{const el=$(id);if(el)el.value=prettyKey(keyConfig[name]||defaultKeys[name])})}
+Object.entries(keyFields).forEach(([name,id])=>{const input=$(id);if(!input)return;input.onclick=()=>{capturingKey=name;input.value="Pressione a tecla...";input.classList.add("capturing")};input.onkeydown=e=>{if(capturingKey!==name)return;e.preventDefault();e.stopPropagation();if(["Control","Alt","Shift","Meta"].includes(e.key))return;keyConfig[name]=e.key.toLowerCase();capturingKey=null;input.classList.remove("capturing");paintKeys();updateKeyboardHelp()}});
+$("saveKeys").onclick=async()=>{if(!user)return;const msg=$("keyMsg");if(new Set(Object.values(keyConfig)).size!==4){msg.textContent="Escolha quatro teclas diferentes.";return}try{await set(ref(db,`users/${user}/keyboard`),{...keyConfig,updatedAt:Date.now()});msg.textContent="Atalhos salvos na sua conta."}catch(e){msg.textContent="Erro ao salvar: "+(e.message||"tente novamente")}};
+$("defaultKeys").onclick=()=>{keyConfig={...defaultKeys};paintKeys();updateKeyboardHelp();$("keyMsg").textContent="Padrão carregado. Clique em salvar para aplicar."};
 
 $("switchAuth").onclick=()=>{mode=mode==="login"?"register":"login";$("authTitle").textContent=mode==="login"?"Entrar":"Criar conta";$("authDesc").textContent=mode==="login"?"Acesse sua conta para continuar.":"Escolha seu usuário e sua senha."; $("authBtn").textContent=mode==="login"?"Entrar":"Cadastrar";$("switchAuth").textContent=mode==="login"?"Criar conta":"Voltar para entrar";showError("")};
 $("authBtn").onclick=async()=>{
@@ -50,13 +55,16 @@ async function enter(account){
  const canControl=account.role==="teacher"||account.role==="admin";
  $("teacherCreate").classList.toggle("hidden",!canControl);
  $("controlMode").classList.toggle("hidden",!canControl);
+ $("teacherKeySettings").classList.toggle("hidden",!canControl);
  $("keyboardHelp").classList.add("hidden");
+ if(keysUnsub)keysUnsub();
+ keysUnsub=canControl?onValue(ref(db,`users/${user}/keyboard`),snap=>{keyConfig={...defaultKeys,...(snap.val()||{})};paintKeys();updateKeyboardHelp()},err=>{$("keyMsg").textContent="Não foi possível carregar seus atalhos: "+(err.message||"erro")}):null;
  document.body.classList.toggle("desktop-controls",false);
  document.body.classList.toggle("mobile-controls",true);
  if(gamesUnsub)gamesUnsub();
  gamesUnsub=onValue(ref(db,"games"),snap=>{games=snap.val()||{};render()},err=>{$("games").innerHTML=`<div class="empty">Erro ao carregar partidas: ${safe(err.message)}</div>`});
 }
-$("logout").onclick=()=>{user=null;profile=null;if(gamesUnsub){gamesUnsub();gamesUnsub=null}$("mainView").classList.add("hidden");$("authView").classList.remove("hidden");$("password").value="";showError("")};
+$("logout").onclick=()=>{user=null;profile=null;if(gamesUnsub){gamesUnsub();gamesUnsub=null}if(keysUnsub){keysUnsub();keysUnsub=null}$("mainView").classList.add("hidden");$("authView").classList.remove("hidden");$("password").value="";showError("")};
 document.querySelectorAll("[data-filter]").forEach(b=>b.onclick=()=>{filter=b.dataset.filter;document.querySelectorAll("[data-filter]").forEach(x=>x.classList.toggle("active",x===b));render()});
 $("createGame").onclick=async()=>{
  let a=$("p1").value.trim(),b=$("p2").value.trim();$("createError").textContent="";
