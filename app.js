@@ -9,6 +9,12 @@ const valid=s=>/^[a-zA-Z0-9_-]{3,24}$/.test(s);
 const validFullName=s=>/^[\\p{L}]+(?:[\\s'-][\\p{L}]+)+$/u.test(s.trim()) && s.trim().split(/\\s+/).length>=2;
 const safe=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 function showError(msg){$("authError").textContent=msg}
+const savedLoginKey="pingpong.savedLogin";
+function refreshSavedLoginState(){const saved=localStorage.getItem(savedLoginKey);$("forgetLogin").classList.toggle("hidden",!saved)}
+function restoreSavedLogin(){try{const saved=JSON.parse(localStorage.getItem(savedLoginKey)||"null");if(saved?.username&&saved?.password){$("username").value=saved.username;$("password").value=saved.password;$("saveLoginMsg").textContent="Usuário salvo neste dispositivo."}}catch(e){localStorage.removeItem(savedLoginKey)}refreshSavedLoginState()}
+$("saveLogin").onclick=()=>{const username=$("username").value.trim(),password=$("password").value;if(!username||!password){$("saveLoginMsg").textContent="Digite usuário e senha antes de salvar.";return}localStorage.setItem(savedLoginKey,JSON.stringify({username,password}));$("saveLoginMsg").textContent="Usuário e senha salvos neste dispositivo.";refreshSavedLoginState()};
+$("forgetLogin").onclick=()=>{localStorage.removeItem(savedLoginKey);$("password").value="";$("saveLoginMsg").textContent="Dados salvos removidos.";refreshSavedLoginState()};
+restoreSavedLogin();
 function hexToRgb(hex){const value=hex.replace("#","");return {r:parseInt(value.slice(0,2),16)||0,g:parseInt(value.slice(2,4),16)||0,b:parseInt(value.slice(4,6),16)||0}}
 function rgbToHex(r,g,b){return "#"+[r,g,b].map(v=>Math.max(0,Math.min(255,Number(v)||0)).toString(16).padStart(2,"0")).join("")}
 function applyTheme(next){theme={...theme,...next};const rgb=hexToRgb(theme.color);document.documentElement.style.setProperty("--accent",theme.color);document.documentElement.style.setProperty("--accent-rgb",`${rgb.r}, ${rgb.g}, ${rgb.b}`);document.body.classList.toggle("rgb-mode",!!theme.rgb);const color=$("themeColor");if(color)color.value=theme.color;const hex=$("themeHex");if(hex)hex.textContent=theme.color.toUpperCase();["R","G","B"].forEach((channel,i)=>{const el=$("rgb"+channel);if(el)el.value=[rgb.r,rgb.g,rgb.b][i]});const toggle=$("rgbToggle");if(toggle)toggle.checked=!!theme.rgb;document.querySelectorAll("[data-theme-preset]").forEach(b=>b.classList.toggle("active",b.dataset.themePreset===theme.preset))}

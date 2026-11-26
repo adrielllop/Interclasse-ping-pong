@@ -4,8 +4,8 @@
 <header class="top"><div class="brand"><div class="mark"><img class="logo-img" src="ping-pong-logo.jpg" alt="Logo Ping Pong"></div><div><h1>Ping Pong</h1><p>Placar e partidas</p></div></div><span class="tag">PLACAR ONLINE</span></header>
 <section id="authView" class="login"><div class="panel"><div class="eyebrow">PING PONG</div><h2 id="authTitle">Entrar</h2><p class="muted" id="authDesc">Acesse sua conta para continuar.</p>
 <div class="field"><label>USUÁRIO</label><input id="username" autocomplete="username" placeholder="Digite seu usuário"></div>
-<div class="field"><label>SENHA</label><div class="password-wrap"><input id="password" type="password" autocomplete="current-password" placeholder="Digite sua senha"><button class="eye-btn" type="button" onclick="window.togglePassword(&quot;password&quot;, this)" aria-label="Mostrar senha">Mostrar</button></div></div>
-<button id="authBtn" class="btn primary block">Entrar</button><button id="switchAuth" class="btn secondary block" style="margin-top:9px">Criar conta</button><div id="authError" class="error"></div><div class="small" style="margin-top:15px">Novos cadastros recebem acesso de aluno.</div></div></section>
+<div class="field"><label>SENHA</label><div class="password-wrap"><input id="password" type="password" autocomplete="current-password" placeholder="Digite sua senha"><button class="eye-btn icon-only" type="button" onclick="window.togglePassword(&quot;password&quot;, this)" aria-label="Mostrar senha" title="Mostrar senha"><img src="eye-visible.png" alt=""></button></div></div>
+<button id="authBtn" class="btn primary block">Entrar</button><button id="switchAuth" class="btn secondary block" style="margin-top:9px">Criar conta</button><div class="login-save-row"><button id="saveLogin" class="save-login-btn" type="button"><span>▣</span> Salvar usuário</button><button id="forgetLogin" class="forget-login-btn hidden" type="button">Esquecer salvo</button></div><div id="saveLoginMsg" class="save-login-msg" aria-live="polite"></div><div id="authError" class="error"></div><div class="small" style="margin-top:15px">Novos cadastros recebem acesso de aluno.</div></div></section>
 <section id="mainView" class="hidden"><div class="main-head"><div><div class="eyebrow" id="roleLabel">ÁREA DO ALUNO</div><h2 id="welcome" style="margin:5px 0">Bem-vindo</h2></div><div class="head-actions"><button id="openTheme" class="btn theme-trigger" type="button"><span class="spark">✦</span> Personalizar</button><button id="logout" class="btn secondary">Sair</button></div></div>
 <section id="themePanel" class="panel theme-panel hidden" aria-label="Personalização visual">
 <div class="theme-heading"><div><div class="eyebrow">SEU ESTILO</div><h3>Personalizar cores</h3><p class="muted">A aparência fica salva somente para este usuário.</p></div><button id="closeTheme" class="icon-btn" type="button" aria-label="Fechar personalização">×</button></div>
@@ -23,8 +23,14 @@ window.togglePassword = function (fieldId, button) {
   if (!input) return;
   var currentlyVisible = input.type === "text";
   input.type = currentlyVisible ? "password" : "text";
-  button.textContent = currentlyVisible ? "Mostrar" : "Ocultar";
-  button.setAttribute("aria-label", currentlyVisible ? "Mostrar senha" : "Ocultar senha");
+  var icon = button.querySelector("img");
+  var actionLabel = currentlyVisible ? "Mostrar senha" : "Ocultar senha";
+  if (icon) {
+    icon.src = currentlyVisible ? "eye-visible.png" : "eye-hidden.png";
+    icon.alt = actionLabel;
+  }
+  button.setAttribute("aria-label", actionLabel);
+  button.setAttribute("title", actionLabel);
   button.setAttribute("aria-pressed", currentlyVisible ? "false" : "true");
 };
 </script>
