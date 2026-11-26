@@ -1,0 +1,8 @@
+PING PONG — REGRAS DE ACESSO
+
+- Alunos: somente espectadores. Podem acompanhar partidas e placares ao vivo; não veem botões de pontuação nem seletor de modo.
+- Professores/administradores: podem criar partidas, adicionar/remover pontos, encerrar e excluir partidas.
+- O modo computador/teclado aparece somente para professor/administrador. Selecione uma partida e use A/D para adicionar e Q/E para remover pontos.
+- No modo celular, professores usam os botões na tela.
+- O cadastro da partida exige nome e sobrenome para cada jogador e rejeita apelidos de uma palavra. Isso valida o formato digitado, não comprova a identidade real da pessoa.
+- O placar exibe somente o resultado atual, sem histórico de movimentações.

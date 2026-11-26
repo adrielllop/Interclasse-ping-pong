@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><meta name="theme-color" content="#05070d"><title>Ping Pong</title><link rel="icon" type="image/jpeg" href="ping-pong-logo.jpg"><link rel="stylesheet" href="styles.css"></head>
+<body><main class="wrap">
+<header class="top"><div class="brand"><div class="mark"><img class="logo-img" src="ping-pong-logo.jpg" alt="Logo Ping Pong"></div><div><h1>Ping Pong</h1><p>Placar e partidas</p></div></div><span class="tag">PLACAR ONLINE</span></header>
+<section id="authView" class="login"><div class="panel"><div class="eyebrow">PING PONG</div><h2 id="authTitle">Entrar</h2><p class="muted" id="authDesc">Acesse sua conta para continuar.</p>
+<div class="field"><label>USUÁRIO</label><input id="username" autocomplete="username" placeholder="Digite seu usuário"></div>
+<div class="field"><label>SENHA</label><div class="password-wrap"><input id="password" type="password" autocomplete="current-password" placeholder="Digite sua senha"><button class="eye-btn" type="button" onclick="window.togglePassword(&quot;password&quot;, this)" aria-label="Mostrar senha">Mostrar</button></div></div>
+<button id="authBtn" class="btn primary block">Entrar</button><button id="switchAuth" class="btn secondary block" style="margin-top:9px">Criar conta</button><div id="authError" class="error"></div><div class="small" style="margin-top:15px">Novos cadastros recebem acesso de aluno.</div></div></section>
+<section id="mainView" class="hidden"><div class="main-head"><div><div class="eyebrow" id="roleLabel">ÁREA DO ALUNO</div><h2 id="welcome" style="margin:5px 0">Bem-vindo</h2></div><div class="head-actions"><button id="openTheme" class="btn theme-trigger" type="button"><span class="spark">✦</span> Personalizar</button><button id="logout" class="btn secondary">Sair</button></div></div>
+<section id="themePanel" class="panel theme-panel hidden" aria-label="Personalização visual">
+<div class="theme-heading"><div><div class="eyebrow">SEU ESTILO</div><h3>Personalizar cores</h3><p class="muted">A aparência fica salva somente para este usuário.</p></div><button id="closeTheme" class="icon-btn" type="button" aria-label="Fechar personalização">×</button></div>
+<div class="theme-preview"><div class="preview-orb"></div><div><strong id="themePreviewTitle">Seu placar, sua energia</strong><span>Prévia em tempo real</span></div></div>
+<div class="preset-row"><button class="swatch active" data-theme-preset="cyan" style="--swatch:#57e8ff" aria-label="Ciano"></button><button class="swatch" data-theme-preset="violet" style="--swatch:#a78bfa" aria-label="Violeta"></button><button class="swatch" data-theme-preset="lime" style="--swatch:#b7f34a" aria-label="Lima"></button><button class="swatch" data-theme-preset="coral" style="--swatch:#ff7b87" aria-label="Coral"></button><button class="swatch" data-theme-preset="gold" style="--swatch:#ffd166" aria-label="Dourado"></button></div>
+<div class="color-fields"><label class="color-picker"><span>Cor principal</span><input id="themeColor" type="color" value="#57e8ff"><b id="themeHex">#57E8FF</b></label><label class="rgb-toggle"><span><b>RGB neon</b><small>Animação de cores</small></span><input id="rgbToggle" type="checkbox"><i></i></label></div>
+<div class="rgb-fields" id="rgbFields"><label>R<input id="rgbR" type="number" min="0" max="255"></label><label>G<input id="rgbG" type="number" min="0" max="255"></label><label>B<input id="rgbB" type="number" min="0" max="255"></label></div>
+<div class="theme-actions"><button id="saveTheme" class="btn primary">Salvar meu visual</button><span id="themeMsg" class="small"></span></div>
+</section>
+<section id="teacherCreate" class="panel hidden" style="margin:20px 0"><div class="eyebrow">ÁREA DO PROFESSOR</div><h3>Nova partida</h3><div class="grid"><div class="field"><label>JOGADOR 1</label><input id="p1" placeholder="Nome e sobrenome do jogador 1" autocomplete="off"></div><div class="field"><label>JOGADOR 2</label><input id="p2" placeholder="Nome e sobrenome do jogador 2" autocomplete="off"></div></div><div class="field"><label>IDENTIFICAÇÃO (OPCIONAL)</label><input id="gameTitle" placeholder="Ex.: Mesa 1"></div><button id="createGame" class="btn primary">Iniciar partida</button><div id="createError" class="error"></div></section>
+<div id="controlMode" class="tabs control-mode"><button class="tab active" data-mode="mobile">Modo celular</button><button class="tab" data-mode="desktop">Modo computador</button></div><div id="keyboardHelp" class="keyboard-help hidden">Teclas: <b>A</b> + ponto jogador 1 · <b>D</b> + ponto jogador 2 · <b>Q</b> − ponto jogador 1 · <b>E</b> − ponto jogador 2. Clique em uma partida para selecioná-la.</div><div class="tabs"><button class="tab active" data-filter="all">Todos</button><button class="tab" data-filter="live">Ao vivo</button><button class="tab" data-filter="finished">Finalizados</button></div><div id="games" class="list"><div class="empty">Carregando partidas...</div></div></section>
+<footer class="footer">Ping Pong <span>•</span> feito para jogar no seu ritmo</footer></main><script>
+window.togglePassword = function (fieldId, button) {
+  var input = document.getElementById(fieldId);
+  if (!input) return;
+  var currentlyVisible = input.type === "text";
+  input.type = currentlyVisible ? "password" : "text";
+  button.textContent = currentlyVisible ? "Mostrar" : "Ocultar";
+  button.setAttribute("aria-label", currentlyVisible ? "Mostrar senha" : "Ocultar senha");
+  button.setAttribute("aria-pressed", currentlyVisible ? "false" : "true");
+};
+</script>
+<script type="module" src="app.js"></script></body></html>
